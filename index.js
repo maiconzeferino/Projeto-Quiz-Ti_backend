@@ -7,20 +7,23 @@ app.use(cors());
 app.use(express.json());
 
 const db = mysql.createPool({
-  host: "us-cdbr-east-05.cleardb.net",
-  user: "b93b8f2c5f610d",
-  password: "2224bd08",
-  database: "heroku_a777fbacd1dd0e0",
+  host: "127.0.0.1",
+  user: "root",
+  password: "Desenv@1",
+  database: "projetoquiz",
+  
 });
 
 /* Consulta Perguntas */ 
 app.get("/Listar", (req, res) => {
-  let sqlConsulta = "select * from game";
+  let sqlConsulta = "select * from game order by id desc";
   db.query(sqlConsulta, (err, result) => {
    if(err) console.log(err);
    else res.send(result);
   });
+  db.close;
 });
+
 
 app.put("/edit", (req, res) => {
   const { id } = req.body;
@@ -34,8 +37,8 @@ app.put("/edit", (req, res) => {
     } else {
       res.send(result);
     }
-    db.clos
   });
+  db.close;
 });
 
 app.delete("/delete/:id", (req, res) => {
@@ -48,6 +51,7 @@ app.delete("/delete/:id", (req, res) => {
       res.send(result);
     }
   });
+  db.close;
 });
 
 app.post("/search", (req, res) => {
@@ -61,7 +65,21 @@ app.post("/search", (req, res) => {
     if (err) res.send(err);
     res.send(result);
   });
+  db.close;
 });
+
+/* Play */ 
+
+
+app.post("/Play", (req, res) => {
+  const { id } = req.body; 
+    let sqlConsulta = "select id, pergunta, resp01, resp02, resp03, resp04, respcorreta from game WHERE id = ?";
+    db.query(sqlConsulta, [id], (err, result) => {
+     if(err) console.log(err);
+     else res.send(result);     
+    });
+});
+
 
 
 /* Enviar valores*/
@@ -80,17 +98,18 @@ app.post("/cadastrarPergunta", (req, res) => {
 
    db.query(sqlInsert,[pergunta,resp01,resp02,resp03,resp04,respCorreta],
     (err, result) => {
-      console.log(err);
+      console.log(err + "erro1");
      if (err) {
-       res.send(err)
+       res.send(err + "erro2")
      }
  
      if (result.length == 0) {
-       res.send(err)
+       res.send(err + "erro3")
      }
  
      res.send(result);
    });
+   db.close;
 });
 
 app.listen(3001, () => {
